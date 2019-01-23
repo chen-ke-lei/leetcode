@@ -4,82 +4,178 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StrongPasswordChecker {
-	// 在可以不删除或者插入的情况下，应该是优先替换
-	public int strongPasswordChecker(String s) {
-		if (s == null || s.length() == 0)
-			return 6;
-		int res = 0;
-		boolean hasNum = false;
-		boolean hasMin = false;
-		boolean hasMax = false;
-		List<String> series = new ArrayList<>();
-		int seriesSize = 1;
 
+	public int strongPasswordChecker(String s) {
+		s = s == null ? "" : s;
+		if (s.length() < 6) {
+			return minStep(s);
+		} else if (s.length() >= 6 && s.length() <= 20) {
+			return mediumStep(s);
+		} else {
+			return upStep(s);
+		}
+
+	}
+
+	// 删除到最精简的状态
+	// 删除的逻辑 优先级 优先删除 为3的倍数删一个
+	// 删连续
+	int upStep(String s) {
+		List<String> resString = new ArrayList<>();
+		boolean num = false;
+		boolean lowCase = false;
+		boolean upCase = false;
+		char pre = ' ';
+		int repeat = 1;
+		int replaceNum = 0;
+		int deleteNum = s.length() - 20;
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			switch (c) {
+			switch (mode(s.charAt(i))) {
 				case 1:
-					hasNum = true;
+					num = true;
 					break;
 				case 2:
-					hasMin = true;
+					lowCase = true;
 					break;
 				case 3:
-					hasMax = true;
+					upCase = true;
 					break;
 				default:
 					break;
 			}
-			if (i > 0) {
-				if (c == s.charAt(i - 1)) {
-					seriesSize++;
-				} else {
-					if (seriesSize >= 3) {
-						series.add(s.substring(i - seriesSize + 1, i + 1));
-						seriesSize = 1;
+			if (c == pre) {
+				repeat++;
+			} else {
+				pre = c;
+				if (repeat >= 3 && repeat % 3 == 0) {
+					deleteNum--;
+					repeat--;
+				}
+				if (repeat >= 3) {
+					resString.add(s.substring(i - repeat , i));
+				}
+				repeat = 1;
+			}
+		}
+		if (repeat >= 3) {
+			if (repeat % 3 == 0) {
+				repeat--;
+				deleteNum--;
+			}
+			if (repeat >= 3) {
+				resString.add(s.substring(s.length() - repeat ));
+			}
+		}
+		if (resString.isEmpty()) {
+			if (deleteNum < 0) {
+				replaceNum = deleteNum * (-1);
+			}
+		} else {
+			for (String str : resString) {
+				int length = str.length();
+				System.out.println(length);
+				if (deleteNum > 0) {
+					if (length - 2 <= deleteNum) {
+						deleteNum -= (length - 2);
+					} else {
+						length -= deleteNum;
+						deleteNum = 0;
+						replaceNum += length / 3;
+
 					}
+				} else if (deleteNum == 0) {
+					replaceNum += length / 3;
 				}
 			}
+			if (deleteNum < 0)
+				replaceNum -= deleteNum;
 		}
-		if (series.isEmpty() && hasMax && hasMin && hasNum && s.length() >= 6 && s.length() <= 20)
-			return 0;
-		int loseType = 0;
-		if (!hasMax)
-			loseType++;
-		if (!hasMin)
-			loseType++;
-		if (!hasNum)
-			loseType++;
-		if (s.length() >= 6 && s.length() <= 20) {
-			int replaceNume = 0;
-			for (String str : series) {
-				replaceNume += str.length() / 3;
-				
+		int x = 0;
+		if (!num)
+			x++;
+		if (!lowCase)
+			x++;
+		if (!upCase)
+			x++;
+		return Math.max(x, replaceNum) + s.length() - 20;
+	}
+
+	// 在可以不删除或者插入的情况下，应该是优先替换,
+	int mediumStep(String s) {
+		boolean num = false;
+		boolean lowCase = false;
+		boolean upCase = false;
+		char pre = ' ';
+		int repeat = 0;
+		int subStep = 0;
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c == pre) {
+				repeat++;
+			} else {
+				repeat = 0;
 			}
-			return Math.max(loseType, replaceNume);
+			if (repeat == 2) {
+				subStep++;
+				repeat = 0;
+				pre = ' ';
+			} else {
+				pre = c;
+			}
+			switch (mode(s.charAt(i))) {
+				case 1:
+					num = true;
+					break;
+				case 2:
+					lowCase = true;
+					break;
+				case 3:
+					upCase = true;
+					break;
+				default:
+					break;
+			}
 		}
-		if (s.length() < 6) {
-			int insertlth = Math.max(loseType, 6 - s.length());
-			return insertlth;
+
+		int x = 0;
+		if (!num)
+			x++;
+		if (!lowCase)
+			x++;
+		if (!upCase)
+			x++;
+		return Math.max(x, subStep);
+	}
+
+	// 小于6的情况很好判断
+	int minStep(String s) {
+		boolean num = false;
+		boolean lowCase = false;
+		boolean upCase = false;
+		for (int i = 0; i < s.length(); i++) {
+			switch (mode(s.charAt(i))) {
+				case 1:
+					num = true;
+					break;
+				case 2:
+					lowCase = true;
+					break;
+				case 3:
+					upCase = true;
+					break;
+				default:
+					break;
+			}
 		}
-		int deleteLth=s.length()-20;
-		//int neededsize=deleteLth+loseT
-		//替换 x  删除 y   x=(a-y)/3   min(Ex+Ey)  Ex>=loseType  deleteLth<=Ey<=deleteLth-12
-		int res1num=0;
-		int res2num=0;
-		int replaceNum=0;
-		for(String str:series) {
-			replaceNum += str.length() / 3;
-			if(str.length()%3==1)
-				res1num++;
-			if(str.length()%3==2)
-				res2num++;
-		}
-		if(replaceNum<=loseType)
-			return loseType+deleteLth;
-		int trueDelete=0;
-		
-		return replaceNum+deleteLth;
+		int x = 0;
+		if (!num)
+			x++;
+		if (!lowCase)
+			x++;
+		if (!upCase)
+			x++;
+		return Math.max(x, 6 - s.length());
 	}
 
 	int mode(char c) {
@@ -90,5 +186,10 @@ public class StrongPasswordChecker {
 		if (c >= 'A' && c <= 'Z')
 			return 3;
 		return 0;
+	}
+
+	public static void main(String[] args) {
+		StrongPasswordChecker strongPasswordChecker = new StrongPasswordChecker();
+		System.out.println(strongPasswordChecker.strongPasswordChecker("aaaaabbbb1234567890ABA"));
 	}
 }
