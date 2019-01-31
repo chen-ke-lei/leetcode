@@ -1,0 +1,7 @@
+/**
+ * 
+ */
+var evaluate = function(expression) {
+	
+};
+
