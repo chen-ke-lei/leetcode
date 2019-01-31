@@ -1,4 +1,4 @@
-package oj.dto;
+package oj;
 
 import java.util.ArrayList;
 import java.util.HashMap;
