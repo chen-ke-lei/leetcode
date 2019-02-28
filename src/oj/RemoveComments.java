@@ -5,70 +5,75 @@ import java.util.List;
 
 public class RemoveComments {
 	public List<String> removeComments(String[] source) {
-		if (source == null || source.length == 0)
-			return new ArrayList<>();
 		List<String> res = new ArrayList<>();
-		boolean comment = false;
-		String tmpline = "";
-		String line = null;
-		boolean iscontinue = false;
-		for (int i = 0; i < source.length; i++) {
-			// 没有未处理的残留
-			if (!iscontinue)
-				line = tmpline + source[i];
-			int c1 = line.indexOf("//");
-			int c2 = line.indexOf("/*");
-			int c3 = line.indexOf("*/");
-//			System.out.println("tmpline:  " + tmpline);
-//			System.out.println("line:  " + line);
-//			System.out.println("c1:   " + c1);
-//			System.out.println("c2:   " + c2);
-//			System.out.println("c3:   " + c3);
-//			System.out.println("comment:   " + comment);
-//			System.out.println();
-//			System.out.println();
-			// 非注释状态
-			if (!comment) {
-				// 最简单的情况 不存在/* 或者 /*在 //之后
-				if (c2 == -1 || (c1 != -1 && c2 > c1)) {
-					tmpline=tmpline + line.split("//", -1)[0];
-					if(tmpline.length()>0)
-					res.add(tmpline);
-					tmpline = "";
-					iscontinue = false;
-					// 存在/*
-				}
-				if (c2 != -1 && (c1 == -1 || c1 > c2)) {
-					// 这一段是可用的
-					tmpline += line.split("/\\*", -1)[0];
-					// 包含了
-					if (c3 != -1) {
-						// 过滤掉中间被注释掉的部分
-						line = line.split("\\*/", -1)[1];
-						// 这一行尚未处理完
-						i--;
-						iscontinue = true;
-					} else {
-						comment = true;
-						iscontinue = false;
-					}
-				}
-				// 注释状态
+		boolean content = false;
+		for (String line : source) {
+			content = handle(res, line, content);
+		}
+		return res;
+	}
+
+	// 处理每一行代码的注释
+	private static boolean handle(List<String> res, String line, boolean content) {
+		String newLine = "";
+		int begin = 0;
+		boolean quotation = false;
+		if (content) {
+			int index = line.indexOf("*/");
+			if (index == -1) {
+				return content;
 			} else {
-				// 注释状态到头
-				if (c3 != -1) {
-					line =tmpline+ line.split("\\*/", -1)[1];
-					comment = false;
-					iscontinue = true;
-					i--;
-				} else {
-					iscontinue = false;
+				String lastStr = res.get(res.size() - 1);
+				res.remove(res.size() - 1);
+				return handle(res, lastStr + line.substring(index + 2), false);
+
+			}
+		} else {
+			for (int i = 0; i < line.length(); i++) {
+				char c = line.charAt(i);
+				if (c == '\\') {
+					i++;
+					continue;
+				} else if (c == '"') {
+					quotation = !quotation;
+				} else if (quotation) {
+					continue;
+				} else if (c == '/') {
+					if (i + 1 < line.length()) {
+						c = line.charAt(i + 1);
+						if (c == '/' || c == '*') {
+							if (c == '/') {
+								if ((newLine + line.substring(begin, i)).length() > 0)
+									res.add(newLine + line.substring(begin, i));
+								return false;
+							} else {
+								int endIndex = line.indexOf("*/", i + 2);
+								if (endIndex == -1) {
+									if ((newLine + line.substring(begin, i)).length() > 0)
+										res.add(newLine + line.substring(begin, i));
+									return true;
+								} else {
+									newLine += line.substring(begin, i);
+									begin = endIndex + 2;
+									i = begin - 1;
+								}
+							}
+						} else {
+							i++;
+							continue;
+						}
+					}
 				}
 			}
 		}
-//		for (String str : res)
-//			System.out.println(str);
-		return res;
+		if (begin > 0) {
+			newLine = newLine + line.substring(begin);
+		} else
+			newLine = line;
+		if (newLine.length() > 0)
+			res.add(newLine);
+		return false;
+
 	}
 
 	public static void main(String[] args) {
