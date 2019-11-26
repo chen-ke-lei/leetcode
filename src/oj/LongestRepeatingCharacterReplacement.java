@@ -38,5 +38,6 @@ public class LongestRepeatingCharacterReplacement {
 			int tmp=0;
 			int index=0;
 		}
+		return  0;
 	}
 }
