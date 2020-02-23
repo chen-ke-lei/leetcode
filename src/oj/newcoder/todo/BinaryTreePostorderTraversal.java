@@ -8,14 +8,7 @@ import java.util.Stack;
 public class BinaryTreePostorderTraversal {
     public ArrayList<Integer> postorderTraversal(TreeNode root) {
         ArrayList<Integer> res = new ArrayList<>();
-        Stack<TreeNode> stack = new Stack<>();
-        if (root != null)
-            stack.push(root);
-        TreeNode pre = null;
-        while (!stack.isEmpty()) {
-            pre = stack.peek();
 
-        }
         return res;
     }
 }
