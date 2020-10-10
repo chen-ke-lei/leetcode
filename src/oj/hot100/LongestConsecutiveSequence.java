@@ -5,23 +5,24 @@ import java.util.List;
 
 public class LongestConsecutiveSequence {
     public int longestConsecutive(int[] nums) {
-        int res=0;
-        int tmp=0;
-        int lastNum;
-        List<Integer>[] hashArray=new List[nums.length*2];
-        for(int i=0;i<hashArray.length;i++)
-            hashArray[i]=new ArrayList<>();
-        for(int num:nums)
-            hashArray[num%hashArray.length].add(num);
-        for(List<Integer> numbers:hashArray){
-            if(numbers.isEmpty()){
-                tmp=0;
-                continue;
-            }
-            if(numbers.size()==1){
+        if (nums.length <= 1)
+            return nums.length;
+        int res = 0;
+        int hash = nums.length * 2 + 1;
+        List<Integer>[] hashArray = new List[hash];
+        for (int i : nums) {
+            int index = i % hash;
+            if (hashArray[index] == null)
+                hashArray[index] = new ArrayList<>();
+            hashArray[index].add(i);
+        }
+        int startIndex=-1,tmp=0,startNum,lastNum;
+        for(int i=0;i<hashArray.length;i++){
+            if(hashArray[i]==null||hashArray[i].isEmpty()){
+                if(startIndex!=-1){
 
+                }
             }
-
         }
         return res;
     }
