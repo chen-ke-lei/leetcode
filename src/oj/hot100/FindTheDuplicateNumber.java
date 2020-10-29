@@ -2,14 +2,20 @@ package oj.hot100;
 
 public class FindTheDuplicateNumber {
     public int findDuplicate(int[] nums) {
-        int res = -1;
         int left = 0, right = nums.length - 1;
         while (left < right) {
-            int num = (right - left) / 2 + 1, tmp = 0;
-            for (int i = left; i <= right; i++){
-
+            int tmp = (right + left) / 2;
+            int num = 0;
+            for (int i = 0; i < nums.length; i++) {
+                if (nums[i] - 1 >= left && nums[i] - 1 <= tmp)
+                    num++;
             }
+            if (num > tmp - left + 1) {
+                right = tmp;
+            } else
+                left = tmp + 1;
+
         }
-        return -1;
+        return left + 1;
     }
 }
