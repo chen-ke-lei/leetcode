@@ -4,36 +4,38 @@ import java.util.Arrays;
 
 public class SortColors {
     public void sortColors(int[] nums) {
-        int beg=0,end=nums.length-1,mid=0;
-        while (beg+mid<end){
-            if(nums[beg]==0){
-                beg++;
-            }else if(nums[end]==2){
-                end--;
-            }else if(nums[beg]==1){
-
-                nums[beg]=nums[beg+mid];
-                nums[beg+mid]=1;
-                mid++;
-            }else if(nums[end]==1){
-
-                nums[end]=nums[beg+mid];
-                nums[beg+mid]=1;
-                mid++;
-            }else {
-                nums[beg]=0;
-                nums[end]=2;
-                beg++;
-                end--;
+        if (nums.length <= 1) return;
+        int left = 0, right = nums.length - 1, mid = 0;
+        while (mid < right) {
+       //     System.out.println(Arrays.toString(nums) + " " + left + " " + mid + "  " + right);
+            if (nums[left] == 0) left++;
+            else if (nums[right] == 2) right--;
+            else if (nums[left] == 2) {
+                nums[left] = nums[right];
+                nums[right] = 2;
+                right--;
+            } else if (nums[right] == 0) {
+                nums[right] = nums[left];
+                nums[left] = 0;
+                left++;
             }
-            System.out.println(Arrays.toString(nums)+"  "+beg+"  "+end+"  "+mid);
+            else if (nums[left] == 1) {
+                mid++;
+                nums[left] = nums[mid];
+                nums[mid] = 1;
+            } else if (nums[right] == 1) {
+                mid++;
+                nums[right] = nums[mid];
+                nums[mid] = 1;
+            }
+
+            if (mid < left) mid = left;
         }
-        for(int i=beg;i<=end;i++)
-            nums[i]=1;
+
     }
 
     public static void main(String[] args) {
-        int[] nums=new int[]{2,0,2,1,1,0};
+        int[] nums = new int[]{2, 0, 2, 1, 1, 0};
         new SortColors().sortColors(nums);
         System.out.println(Arrays.toString(nums));
     }

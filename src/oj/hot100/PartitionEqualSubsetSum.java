@@ -1,6 +1,8 @@
 package oj.hot100;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PartitionEqualSubsetSum {
     public boolean canPartition(int[] nums) {
@@ -13,20 +15,22 @@ public class PartitionEqualSubsetSum {
             return false;
         sum /= 2;
         Arrays.sort(nums);
-        int target = nums[0];
-        int beg = 0;
-        for (int i = 1; i < nums.length; i++) {
-            target += nums[i];
-            if (target == sum)
-                return true;
-            if (target > sum) {
-                for (; beg < i && target > sum; beg++) {
-                    target -= nums[beg];
-                }
-                if (target == sum)
-                    return true;
-            }
+        return dfs(nums, sum, 0, 0, new HashSet<>());
+
+    }
+
+    boolean dfs(int[] nums, int target, int i, int sum, Set<Integer> set) {
+        for (; i < nums.length; i++) {
+            if (sum + nums[i] == target) return true;
+            if (set.contains(sum + nums[i])) continue;
+            set.add(sum + nums[i]);
+            if (dfs(nums, target, i + 1, sum + nums[i], set)) return true;
         }
         return false;
+    }
+
+    public static void main(String[] args) {
+        int[] nums = new int[]{14, 9, 8, 4, 3, 2};
+        System.out.println(new PartitionEqualSubsetSum().canPartition(nums));
     }
 }
