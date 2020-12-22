@@ -17,7 +17,7 @@ class FrontMiddleBackQueue {
 
     public void pushFront(int val) {
         frontQueue.addFirst(val);
-        if (frontQueue.size()  > lastQueue.size())
+        if (frontQueue.size() + 1 >= lastQueue.size())
             lastQueue.addFirst(frontQueue.removeLast());
     }
 
@@ -25,7 +25,7 @@ class FrontMiddleBackQueue {
         if (lastQueue.isEmpty() && frontQueue.isEmpty()) lastQueue.addFirst(val);
         else if (frontQueue.size() < lastQueue.size()) frontQueue.addLast(val);
         else
-            lastQueue.addFirst(val);
+            lastQueue.addLast(val);
 
     }
 
@@ -59,8 +59,8 @@ class FrontMiddleBackQueue {
     public int popBack() {
         if (lastQueue.isEmpty() && frontQueue.isEmpty()) return -1;
         if (lastQueue.size() > 0) {
-            int val = lastQueue.removeLast();
-            if (lastQueue.size() < frontQueue.size())
+            int val = frontQueue.removeLast();
+            if (lastQueue.size() < frontQueue.size() + 1)
                 lastQueue.addFirst(frontQueue.removeLast());
             return val;
         }
